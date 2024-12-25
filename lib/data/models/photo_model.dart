@@ -26,7 +26,7 @@ class PhotoModel {
     this.liked,
     this.alt,
   });
-
+//
   factory PhotoModel.fromJson(Map<String, dynamic> json) => PhotoModel(
         id: json["id"],
         width: json["width"],
