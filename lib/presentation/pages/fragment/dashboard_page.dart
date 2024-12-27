@@ -40,6 +40,7 @@ class _DashboardPageState extends State<DashboardPage> {
       }),
       bottomNavigationBar: buildBottomNav(),
       extendBody: true, // agar wilayah body tidak terututp / queque
+      resizeToAvoidBottomInset: false, //
     );
   }
 

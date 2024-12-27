@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_photo_idea_app/core/di.dart';
 import 'package:flutter_photo_idea_app/presentation/pages/fragment/dashboard_page.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   initInjection();
@@ -16,6 +17,9 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        textTheme: GoogleFonts.poppinsTextTheme(),
+      ),
       home: DashboardPage(),
       routes: {
         '/home': (context) => DashboardPage(),
