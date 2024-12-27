@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last
-
 import 'package:flutter/material.dart';
+import 'package:flutter_photo_idea_app/data/datasource/remote_photo_datasource.dart';
 import 'package:flutter_photo_idea_app/presentation/pages/fragment/home_fragment.dart';
 import 'package:flutter_photo_idea_app/presentation/pages/fragment/saved_fragment.dart';
 import 'package:get/get.dart';
@@ -19,6 +19,12 @@ class _DashboardPageState extends State<DashboardPage> {
     Icons.home,
     Icons.bookmark,
   ];
+
+  @override
+  void initState() {
+    RemotePhotoDatasource.fetchCurated(1, 10);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

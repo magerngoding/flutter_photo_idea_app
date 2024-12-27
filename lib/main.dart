@@ -1,9 +1,11 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:flutter_photo_idea_app/core/di.dart';
 import 'package:flutter_photo_idea_app/presentation/pages/fragment/dashboard_page.dart';
 
 void main() {
+  initInjection();
   runApp(const MainApp());
 }
 
