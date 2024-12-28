@@ -1,4 +1,5 @@
 class SourceModel {
+  // Source adalah detail image
   final String? original;
   final String? large2X;
   final String? large;

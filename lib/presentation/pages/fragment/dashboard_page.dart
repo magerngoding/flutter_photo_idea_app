@@ -22,7 +22,10 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   void initState() {
-    RemotePhotoDatasource.fetchCurated(1, 10);
+    RemotePhotoDatasource.fetchCurated(
+      1,
+      10,
+    );
     super.initState();
   }
 

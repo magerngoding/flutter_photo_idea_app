@@ -1,12 +1,16 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:extended_image/extended_image.dart';
 import 'package:fd_log/fd_log.dart';
+import 'package:flutter_photo_idea_app/common/enums.dart';
 import 'package:flutter_photo_idea_app/core/di.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_photo_idea_app/common/app_constant.dart';
-import 'package:flutter_photo_idea_app/data/datasource/remote_photo_datasource.dart';
+import 'package:flutter_photo_idea_app/data/models/photo_model.dart';
+import 'package:flutter_photo_idea_app/presentation/controllers/curated_photos_controller.dart';
 import 'package:gap/gap.dart';
 import 'package:d_input/d_input.dart';
+import 'package:get/get.dart';
 
 class HomeFragment extends StatefulWidget {
   const HomeFragment({super.key});
@@ -16,6 +20,8 @@ class HomeFragment extends StatefulWidget {
 }
 
 class _HomeFragmentState extends State<HomeFragment> {
+  final curatedPhotosController = Get.put(CurratedPhotosController());
+
   final queryController = TextEditingController();
   final categories = [
     'happy',
@@ -31,19 +37,31 @@ class _HomeFragmentState extends State<HomeFragment> {
   // Method - pakai void karena tidak ada callback
   void gotoSearch() {}
 
+  // Triggerd
   @override
   void initState() {
-    RemotePhotoDatasource.fetchCurated(1, 10);
+    curatedPhotosController.fetchRequest();
     super.initState();
   }
 
   @override
+  void dispose() {
+    CurratedPhotosController.delete();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        buildHeader(),
-        buildCategories(),
-      ],
+    // RefreshIndicator agar tarik refresh dengan cara tarik layar ke bawah
+    return RefreshIndicator.adaptive(
+      onRefresh: () async {},
+      child: ListView(
+        children: [
+          buildHeader(),
+          buildCategories(),
+          buildCuratedPhotos(),
+        ],
+      ),
     );
   }
 
@@ -158,6 +176,41 @@ class _HomeFragmentState extends State<HomeFragment> {
           );
         },
       ),
+    );
+  }
+
+  Widget buildCuratedPhotos() {
+    return Obx(() {
+      final state = curatedPhotosController.state;
+      if (state.fetchStatus == FetchStatus.init) {
+        return SizedBox();
+      }
+
+      final list = state.list ?? [];
+      return GridView.builder(
+        itemCount: list.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3, // jumlah data ke samping
+          mainAxisSpacing: 1, // jarak vertikal
+          crossAxisSpacing: 1, // jarak horizontal
+          childAspectRatio: 1,
+        ),
+        padding: EdgeInsets.zero,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          final item = list[index];
+          return buildPhotoItem(item);
+        },
+      );
+    });
+  }
+
+  Widget buildPhotoItem(PhotoModel photo) {
+    // Extended image agar menstabilkan jaringan untuk photo lebih bagus daripada image.network
+    return ExtendedImage.network(
+      photo.source?.portrait ?? '',
+      fit: BoxFit.cover,
     );
   }
 }

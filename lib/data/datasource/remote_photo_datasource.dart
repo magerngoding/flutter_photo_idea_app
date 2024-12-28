@@ -10,43 +10,33 @@ import 'package:flutter_photo_idea_app/data/models/photo_model.dart';
 import 'package:http/http.dart' as http;
 
 class RemotePhotoDatasource {
-  static Future<Record> fetchCurated(
+  static Future<(bool, String, List<PhotoModel>?)> fetchCurated(
     int page,
     int perPage,
   ) async {
-    final url =
-        '${APIs.pexelsBaseURL}/curated?page=$page=page&per_page=$perPage';
-
+    final url = '${APIs.pexelsBaseURL}/curated?page=$page&per_page=$perPage';
     const headers = {
-      'Authorization': ApiKeys.pexels,
+      'Authorization': APIKeys.pexels,
     };
-
     try {
       final response = await http.get(
         Uri.parse(url),
         headers: headers,
       );
-
       sl<FDLog>().response(response);
       if (response.statusCode == 200) {
         final resBody = jsonDecode(response.body);
-
-        // ambil data photos dari api
         final rawPhotos = List.from(resBody['photos']);
-
-        // return data
         final photos = rawPhotos.map((json) {
           return PhotoModel.fromJson(json);
         }).toList();
-
         return (true, 'Fetch Success', photos);
       }
 
       return (false, 'Fetch Failed', null);
     } catch (e) {
       sl<FDLog>().basic(e.toString());
-
-      return (false, 'Something went wrong');
+      return (false, 'Something went wrong', null);
     }
   }
 
@@ -59,7 +49,7 @@ class RemotePhotoDatasource {
         '${APIs.pexelsBaseURL}/search?query=$query&page=$page&per_page=$perPage';
 
     const headers = {
-      'Authorization': ApiKeys.pexels,
+      'Authorization': APIKeys.pexels,
     };
 
     try {
@@ -97,7 +87,7 @@ class RemotePhotoDatasource {
     final url = '${APIs.pexelsBaseURL}/photos/id';
 
     const headers = {
-      'Authorization': ApiKeys.pexels,
+      'Authorization': APIKeys.pexels,
     };
 
     try {
