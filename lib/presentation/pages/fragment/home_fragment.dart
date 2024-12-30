@@ -21,8 +21,9 @@ class HomeFragment extends StatefulWidget {
 
 class _HomeFragmentState extends State<HomeFragment> {
   final curatedPhotosController = Get.put(CurratedPhotosController());
-
   final queryController = TextEditingController();
+  final scrollController = ScrollController();
+
   final categories = [
     'happy',
     'people',
@@ -41,6 +42,17 @@ class _HomeFragmentState extends State<HomeFragment> {
   @override
   void initState() {
     curatedPhotosController.fetchRequest();
+
+    scrollController.addListener(() {
+      //  sl<FDLog>().basic(scrollController.offset.toString());
+
+      // Ngecek scroll udah maksimum
+      bool reachMax =
+          scrollController.offset == scrollController.position.maxScrollExtent;
+      if (reachMax) {
+        curatedPhotosController.fetchRequest();
+      }
+    });
     super.initState();
   }
 
@@ -56,10 +68,13 @@ class _HomeFragmentState extends State<HomeFragment> {
     return RefreshIndicator.adaptive(
       onRefresh: () async {},
       child: ListView(
+        controller: scrollController,
         children: [
           buildHeader(),
           buildCategories(),
           buildCuratedPhotos(),
+          buildLoadingOrFailed(),
+          Gap(50),
         ],
       ),
     );
@@ -212,5 +227,42 @@ class _HomeFragmentState extends State<HomeFragment> {
       photo.source?.portrait ?? '',
       fit: BoxFit.cover,
     );
+  }
+
+  Widget buildLoadingOrFailed() {
+    return Obx(() {
+      final state = curatedPhotosController.state;
+      if (state.fetchStatus == FetchStatus.loading) {
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 20),
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+      if (state.fetchStatus == FetchStatus.failed) {
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 20),
+          child: Center(
+            child: Text(
+              state.message,
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        );
+      }
+      if (state.fetchStatus == FetchStatus.success && !state.hasMore) {
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 20),
+          child: Center(
+            child: Text('No More Photo!'),
+          ),
+        );
+      }
+      return SizedBox();
+    });
   }
 }
