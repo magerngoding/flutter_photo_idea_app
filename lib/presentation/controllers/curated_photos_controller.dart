@@ -11,6 +11,11 @@ class CurratedPhotosController extends GetxController {
   CurratedPhotosState get state => _state.value;
   set state(CurratedPhotosState n) => _state.value = n;
 
+  void reset() {
+    _state.value = CurratedPhotosState();
+    fetchRequest();
+  }
+
   Future<void> fetchRequest() async {
     // jika tidak ada data selanjutnya
     if (!state.hasMore) return;

@@ -38,20 +38,37 @@ class _HomeFragmentState extends State<HomeFragment> {
   // Method - pakai void karena tidak ada callback
   void gotoSearch() {}
 
+  // upward button
+  final showUpButton = RxBool(false);
+  void gotoUpPage() {
+    scrollController.animateTo(
+      0,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.fastOutSlowIn,
+    );
+  }
+
+  void refresh() {
+    curatedPhotosController.reset();
+  }
+
   // Triggerd
   @override
   void initState() {
     curatedPhotosController.fetchRequest();
 
     scrollController.addListener(() {
-      //  sl<FDLog>().basic(scrollController.offset.toString());
-
       // Ngecek scroll udah maksimum
       bool reachMax =
           scrollController.offset == scrollController.position.maxScrollExtent;
       if (reachMax) {
         curatedPhotosController.fetchRequest();
       }
+
+      bool passMaxHeight =
+          scrollController.offset > MediaQuery.sizeOf(context).height;
+      // jika sudah diklik maka akan menghilang
+      showUpButton.value = passMaxHeight;
     });
     super.initState();
   }
@@ -65,18 +82,27 @@ class _HomeFragmentState extends State<HomeFragment> {
   @override
   Widget build(BuildContext context) {
     // RefreshIndicator agar tarik refresh dengan cara tarik layar ke bawah
-    return RefreshIndicator.adaptive(
-      onRefresh: () async {},
-      child: ListView(
-        controller: scrollController,
-        children: [
-          buildHeader(),
-          buildCategories(),
-          buildCuratedPhotos(),
-          buildLoadingOrFailed(),
-          Gap(50),
-        ],
-      ),
+    return Stack(
+      children: [
+        RefreshIndicator.adaptive(
+          onRefresh: () async => refresh(),
+          child: ListView(
+            controller: scrollController,
+            children: [
+              buildHeader(),
+              buildCategories(),
+              buildCuratedPhotos(),
+              buildLoadingOrFailed(),
+              Gap(50),
+            ],
+          ),
+        ),
+        Positioned(
+          bottom: 30,
+          right: 30,
+          child: buildUpwardButton(),
+        ),
+      ],
     );
   }
 
@@ -259,6 +285,21 @@ class _HomeFragmentState extends State<HomeFragment> {
           padding: EdgeInsets.symmetric(vertical: 20),
           child: Center(
             child: Text('No More Photo!'),
+          ),
+        );
+      }
+      return SizedBox();
+    });
+  }
+
+  Widget buildUpwardButton() {
+    return Obx(() {
+      if (showUpButton.value) {
+        return FloatingActionButton.small(
+          heroTag: 'icon_small_upward',
+          onPressed: gotoUpPage,
+          child: const Icon(
+            Icons.arrow_upward,
           ),
         );
       }
