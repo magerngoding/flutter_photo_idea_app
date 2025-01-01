@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_photo_idea_app/common/app_constant.dart';
 import 'package:flutter_photo_idea_app/data/models/photo_model.dart';
 import 'package:flutter_photo_idea_app/presentation/controllers/curated_photos_controller.dart';
+import 'package:flutter_photo_idea_app/presentation/pages/search_photos_page.dart';
 import 'package:gap/gap.dart';
 import 'package:d_input/d_input.dart';
 import 'package:get/get.dart';
@@ -36,10 +37,18 @@ class _HomeFragmentState extends State<HomeFragment> {
   ];
 
   // Method - pakai void karena tidak ada callback
-  void gotoSearch() {}
+  void gotoSearch() {
+    final query = queryController.text;
+    Navigator.pushNamed(
+      context,
+      SearchPhotosPage.routeName,
+      arguments: query,
+    );
+  }
 
   // upward button
   final showUpButton = RxBool(false);
+
   void gotoUpPage() {
     scrollController.animateTo(
       0,
@@ -76,6 +85,7 @@ class _HomeFragmentState extends State<HomeFragment> {
   @override
   void dispose() {
     CurratedPhotosController.delete();
+    scrollController.dispose();
     super.dispose();
   }
 

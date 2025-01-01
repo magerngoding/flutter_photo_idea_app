@@ -40,34 +40,28 @@ class RemotePhotoDatasource {
     }
   }
 
-  static Future<Record> search(
+  static Future<(bool, String, List<PhotoModel>?)> search(
     String query,
     int page,
     int perPage,
   ) async {
     final url =
         '${APIs.pexelsBaseURL}/search?query=$query&page=$page&per_page=$perPage';
-
     const headers = {
       'Authorization': APIKeys.pexels,
     };
-
     try {
       final response = await http.get(
         Uri.parse(url),
         headers: headers,
       );
-
       sl<FDLog>().response(response);
       if (response.statusCode == 200) {
         final resBody = jsonDecode(response.body);
-
         final rawPhotos = List.from(resBody['photos']);
-
         final photos = rawPhotos.map((json) {
           return PhotoModel.fromJson(json);
         }).toList();
-
         return (true, 'Search Success', photos);
       }
 
@@ -78,8 +72,7 @@ class RemotePhotoDatasource {
       return (false, 'Search Failed', null);
     } catch (e) {
       sl<FDLog>().basic(e.toString());
-
-      return (false, 'Something went wrong');
+      return (false, 'Something went wrong', null);
     }
   }
 

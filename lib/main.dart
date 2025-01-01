@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_photo_idea_app/core/di.dart';
 import 'package:flutter_photo_idea_app/presentation/pages/fragment/dashboard_page.dart';
+import 'package:flutter_photo_idea_app/presentation/pages/search_photos_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() {
@@ -23,6 +24,11 @@ class MainApp extends StatelessWidget {
       home: DashboardPage(),
       routes: {
         '/home': (context) => DashboardPage(),
+        SearchPhotosPage.routeName: (context) {
+          final query = ModalRoute.of(context)?.settings.arguments as String;
+
+          return SearchPhotosPage(query: query);
+        }
       },
     );
   }
