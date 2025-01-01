@@ -13,6 +13,8 @@ import 'package:gap/gap.dart';
 import 'package:d_input/d_input.dart';
 import 'package:get/get.dart';
 
+import '../detail_photo_page.dart';
+
 class HomeFragment extends StatefulWidget {
   const HomeFragment({super.key});
 
@@ -43,6 +45,14 @@ class _HomeFragmentState extends State<HomeFragment> {
       context,
       SearchPhotosPage.routeName,
       arguments: query,
+    );
+  }
+
+  void gotoDetail(PhotoModel photo) {
+    Navigator.pushNamed(
+      context,
+      DetailPhotoPage.routeName,
+      arguments: photo.id,
     );
   }
 
@@ -259,9 +269,12 @@ class _HomeFragmentState extends State<HomeFragment> {
 
   Widget buildPhotoItem(PhotoModel photo) {
     // Extended image agar menstabilkan jaringan untuk photo lebih bagus daripada image.network
-    return ExtendedImage.network(
-      photo.source?.portrait ?? '',
-      fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () => gotoDetail(photo),
+      child: ExtendedImage.network(
+        photo.source?.portrait ?? '',
+        fit: BoxFit.cover,
+      ),
     );
   }
 

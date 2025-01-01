@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 
 import '../../common/enums.dart';
 import '../../data/models/photo_model.dart';
+import 'detail_photo_page.dart';
 
 class SearchPhotosPage extends StatefulWidget {
   const SearchPhotosPage({
@@ -16,7 +17,7 @@ class SearchPhotosPage extends StatefulWidget {
   }) : super(key: key);
 
   final String query;
-  static const routeName = '/search';
+  static const routeName = '/photo/search';
 
   @override
   State<SearchPhotosPage> createState() => _SearchPhotosPageState();
@@ -39,6 +40,14 @@ class _SearchPhotosPageState extends State<SearchPhotosPage> {
       0,
       duration: Duration(milliseconds: 500),
       curve: Curves.fastOutSlowIn,
+    );
+  }
+
+  void gotoDetail(PhotoModel photo) {
+    Navigator.pushNamed(
+      context,
+      DetailPhotoPage.routeName,
+      arguments: photo.id,
     );
   }
 
@@ -143,9 +152,12 @@ class _SearchPhotosPageState extends State<SearchPhotosPage> {
 
   Widget buildPhotoItem(PhotoModel photo) {
     // Extended image agar menstabilkan jaringan untuk photo lebih bagus daripada image.network
-    return ExtendedImage.network(
-      photo.source?.portrait ?? '',
-      fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () => gotoDetail(photo),
+      child: ExtendedImage.network(
+        photo.source?.portrait ?? '',
+        fit: BoxFit.cover,
+      ),
     );
   }
 

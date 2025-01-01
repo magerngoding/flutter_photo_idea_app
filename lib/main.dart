@@ -6,6 +6,8 @@ import 'package:flutter_photo_idea_app/presentation/pages/fragment/dashboard_pag
 import 'package:flutter_photo_idea_app/presentation/pages/search_photos_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'presentation/pages/detail_photo_page.dart';
+
 void main() {
   initInjection();
   runApp(const MainApp());
@@ -28,6 +30,11 @@ class MainApp extends StatelessWidget {
           final query = ModalRoute.of(context)?.settings.arguments as String;
 
           return SearchPhotosPage(query: query);
+        },
+        DetailPhotoPage.routeName: (context) {
+          final id = ModalRoute.of(context)?.settings.arguments as int;
+
+          return DetailPhotoPage(id: id);
         }
       },
     );

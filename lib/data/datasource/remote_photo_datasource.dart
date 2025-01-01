@@ -1,13 +1,12 @@
-// ignore_for_file: prefer_const_declarations
-
 import 'dart:convert';
 
 import 'package:fd_log/fd_log.dart';
-import 'package:flutter_photo_idea_app/core/api_keys.dart';
-import 'package:flutter_photo_idea_app/core/apis.dart';
-import 'package:flutter_photo_idea_app/core/di.dart';
-import 'package:flutter_photo_idea_app/data/models/photo_model.dart';
 import 'package:http/http.dart' as http;
+
+import '../../core/api_keys.dart';
+import '../../core/apis.dart';
+import '../../core/di.dart';
+import '../models/photo_model.dart';
 
 class RemotePhotoDatasource {
   static Future<(bool, String, List<PhotoModel>?)> fetchCurated(
@@ -76,25 +75,20 @@ class RemotePhotoDatasource {
     }
   }
 
-  static Future<Record> fetchById(int id) async {
-    final url = '${APIs.pexelsBaseURL}/photos/id';
-
+  static Future<(bool, String, PhotoModel?)> fetchById(int id) async {
+    final url = '${APIs.pexelsBaseURL}/photos/$id';
     const headers = {
       'Authorization': APIKeys.pexels,
     };
-
     try {
       final response = await http.get(
         Uri.parse(url),
         headers: headers,
       );
-
       sl<FDLog>().response(response);
       if (response.statusCode == 200) {
         final resBody = jsonDecode(response.body);
-
         final photo = PhotoModel.fromJson(resBody);
-
         return (true, 'Fetch Success', photo);
       }
 
@@ -102,11 +96,10 @@ class RemotePhotoDatasource {
         return (false, 'Not Found', null);
       }
 
-      return (false, 'Search Failed', null);
+      return (false, 'Fetch Failed', null);
     } catch (e) {
       sl<FDLog>().basic(e.toString());
-
-      return (false, 'Something went wrong');
+      return (false, 'Something went wrong', null);
     }
   }
 }
