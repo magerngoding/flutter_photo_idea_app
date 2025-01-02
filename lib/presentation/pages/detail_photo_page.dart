@@ -1,10 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, prefer_const_constructors, prefer_const_literals_to_create_immutables
+import 'package:d_info/d_info.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_photo_idea_app/common/enums.dart';
+import 'package:flutter_photo_idea_app/data/models/photo_model.dart';
 import 'package:flutter_photo_idea_app/presentation/controllers/detail_photo.dart';
+import 'package:flutter_photo_idea_app/presentation/controllers/recommendation_photo_controller.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DetailPhotoPage extends StatefulWidget {
   final int id;
@@ -22,13 +26,24 @@ class DetailPhotoPage extends StatefulWidget {
 
 class _DetailPhotoPageState extends State<DetailPhotoPage> {
   final detailPhotoController = Get.put(DetailPhotoController());
+  final recommendationPhotoController =
+      Get.put(RecommendationhotosController());
 
-  void openURL(String url) {
-    print('clicked');
+  void openURL(String url) async {
+    if (!await launchUrl(Uri.parse(url))) {
+      DInfo.toastError('Could not launch $url');
+    }
   }
 
   void fetchDetail() {
-    detailPhotoController.fetchRequest(widget.id);
+    detailPhotoController.fetchRequest(widget.id).then((photo) {
+      if (photo == null) return;
+      fetchRecommendation(photo.alt ?? '');
+    });
+  }
+
+  void fetchRecommendation(String query) {
+    recommendationPhotoController.fetchRequest(query);
   }
 
   @override
@@ -40,6 +55,7 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
   @override
   void dispose() {
     DetailPhotoController.delete();
+    RecommendationhotosController.delete();
     super.dispose();
   }
 
@@ -101,6 +117,8 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
                 photo.photographer ?? '',
                 photo.photographerUrl ?? '',
               ),
+              Gap(10),
+              buildReccomendation(),
             ],
           );
         },
@@ -182,7 +200,7 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
         ),
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         child: Text(
-          "Oepn on Pexels",
+          "Open on Pexels",
           style: TextStyle(
             fontSize: 14.0,
             fontWeight: FontWeight.w400,
@@ -231,6 +249,68 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
             decoration: TextDecoration.underline,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildReccomendation() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            "More like this",
+            style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Gap(12),
+        Obx(
+          () {
+            final state = recommendationPhotoController.state;
+            if (state.fetchStatus == FetchStatus.init) {
+              return SizedBox();
+            }
+            if (state.fetchStatus == FetchStatus.loading) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (state.fetchStatus == FetchStatus.failed) {
+              return Center(child: Text('No Recommendation'));
+            }
+            final list = state.list;
+            return SizedBox(
+              height: 150,
+              child: ListView.builder(
+                itemCount: list!.length,
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(right: 16),
+                itemBuilder: (context, index) {
+                  final photo = list[index];
+                  return Padding(
+                    padding: EdgeInsets.only(left: index == 0 ? 16 : 8),
+                    child: buildRecommendationPhotoItem(photo),
+                  );
+                },
+              ),
+            );
+          },
+        )
+      ],
+    );
+  }
+
+  Widget buildRecommendationPhotoItem(PhotoModel photo) {
+    return AspectRatio(
+      aspectRatio: 3 / 4, // 3 untuk lebar 4 untuk tinggi LxT
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: ExtendedImage.network(photo.source?.medium ?? ''),
       ),
     );
   }
