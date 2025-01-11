@@ -9,10 +9,9 @@ class LocalPhotoDatasource {
       final database = await sl<DatabaseHelper>().database;
       final list = await database.query('saved');
       final photos = list.map((e) => PhotoModel.fromJsonSaved(e)).toList();
-
       return (true, 'Fetch Success', photos);
     } catch (e) {
-      return (false, 'Something went wrong', null);
+      return (false, 'Somehting went wrong', null);
     }
   }
 
@@ -26,7 +25,7 @@ class LocalPhotoDatasource {
       );
       return (true, 'Success Check', list.isNotEmpty);
     } catch (e) {
-      return (false, 'Something went wrong', null);
+      return (false, 'Somehting went wrong', null);
     }
   }
 
@@ -38,29 +37,28 @@ class LocalPhotoDatasource {
         photo.toJsonSaved(),
       );
       if (rowAffected != 0) {
-        return (true, 'Photo has saved!');
+        return (true, 'Photo has saved');
       }
-      return (true, 'Photo has not saved!');
+      return (false, 'Photo has not saved');
     } catch (e) {
-      return (false, 'Something went wrong');
+      return (false, 'Somehting went wrong');
     }
   }
 
-  static Future<(bool, String)> unSavedPhoto(int id) async {
+  static Future<(bool, String)> unsavePhoto(int id) async {
     try {
       final database = await sl<DatabaseHelper>().database;
       final rowAffected = await database.delete(
         'saved',
-        // pakai dibawah ini agar data tidak kehapus semua, karena menghapus berdasarkan ID
         where: 'id=?',
         whereArgs: [id],
       );
       if (rowAffected != 0) {
-        return (true, 'Removed from saved!');
+        return (true, 'Removed from saved');
       }
-      return (true, 'Failed to unsaved!');
+      return (false, 'Failed to unsave');
     } catch (e) {
-      return (false, 'Something went wrong');
+      return (false, 'Somehting went wrong');
     }
   }
 }

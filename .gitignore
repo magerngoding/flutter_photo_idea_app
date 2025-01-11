@@ -45,3 +45,4 @@ app.*.map.json
 # Fungsi gitignore adalah agar tidak dipush ke git
 # Jadi file yang ada disini tidak akan dipush ke github
 /lib/core/api_keys.dart
+.vscode/templates

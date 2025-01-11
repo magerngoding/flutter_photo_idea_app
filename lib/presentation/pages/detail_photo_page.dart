@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_photo_idea_app/common/enums.dart';
 import 'package:flutter_photo_idea_app/data/models/photo_model.dart';
 import 'package:flutter_photo_idea_app/presentation/controllers/detail_photo.dart';
+import 'package:flutter_photo_idea_app/presentation/controllers/is_saved_controller.dart';
 import 'package:flutter_photo_idea_app/presentation/controllers/recommendation_photo_controller.dart';
+import 'package:flutter_photo_idea_app/presentation/controllers/save_photo_controller.dart';
+import 'package:flutter_photo_idea_app/presentation/controllers/saved_controller.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -28,6 +31,9 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
   final detailPhotoController = Get.put(DetailPhotoController());
   final recommendationPhotoController =
       Get.put(RecommendationhotosController());
+  final isSavedController = Get.put(IsSavedController());
+  final savePhotoController = Get.put(SavePhotoController());
+  final savedController = Get.find<SavedController>();
 
   void openURL(String url) async {
     if (!await launchUrl(Uri.parse(url))) {
@@ -46,9 +52,30 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
     recommendationPhotoController.fetchRequest(query);
   }
 
+  void checkIsSaved() {
+    isSavedController.executeRequest(widget.id);
+  }
+
+  void saveOrUnsave(bool isSaved, PhotoModel photo) async {
+    SavePhotoState state = isSaved
+        ? await savePhotoController.unsave(widget.id)
+        : await savePhotoController.save(photo);
+    if (state.fetchStatus == FetchStatus.failed) {
+      DInfo.toastError(state.message);
+      return;
+    }
+    if (state.fetchStatus == FetchStatus.success) {
+      checkIsSaved();
+      savedController.fetchRequest();
+      DInfo.toastSuccess(state.message);
+      return;
+    }
+  }
+
   @override
   void initState() {
     fetchDetail();
+    checkIsSaved();
     super.initState();
   }
 
@@ -56,6 +83,8 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
   void dispose() {
     DetailPhotoController.delete();
     RecommendationhotosController.delete();
+    IsSavedController.delete();
+    SavePhotoController.delete();
     super.dispose();
   }
 
@@ -99,7 +128,7 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
                           buildBackButton(),
                           Spacer(),
                           buildPreviewButton(photo.source?.original ?? ''),
-                          buildSavaButton(),
+                          buildSavaButton(photo),
                         ],
                       ),
                     ),
@@ -177,15 +206,19 @@ class _DetailPhotoPageState extends State<DetailPhotoPage> {
     );
   }
 
-  Widget buildSavaButton() {
-    return IconButton(
-      style: ButtonStyle(
-        iconColor: WidgetStatePropertyAll(Colors.white),
-        backgroundColor: WidgetStatePropertyAll(Colors.black38),
-      ),
-      onPressed: () {},
-      icon: Icon(Icons.bookmark),
-    );
+  Widget buildSavaButton(PhotoModel photo) {
+    return Obx(() {
+      final isSaved = isSavedController.state.status;
+      return IconButton(
+        onPressed: () => saveOrUnsave(isSaved, photo),
+        color: Colors.white,
+        style: ButtonStyle(
+          iconColor: WidgetStatePropertyAll(Colors.white),
+          backgroundColor: WidgetStatePropertyAll(Colors.black38),
+        ),
+        icon: Icon(isSaved ? Icons.bookmark : Icons.bookmark_border),
+      );
+    });
   }
 
   Widget buildOpenOnPexels(String url) {

@@ -56,11 +56,12 @@ class PhotoModel {
         "liked": liked,
         "alt": alt,
       };
+
   factory PhotoModel.fromJsonSaved(Map<String, dynamic> json) => PhotoModel(
         id: json["id"],
         source: json["src"] == null
             ? null
-            : SourceModel.fromJson(jsonDecode('src')),
+            : SourceModel.fromJson(jsonDecode(json["src"])),
       );
 
   Map<String, dynamic> toJsonSaved() => {

@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_photo_idea_app/core/di.dart';
-import 'package:flutter_photo_idea_app/presentation/pages/fragment/dashboard_page.dart';
+import 'package:flutter_photo_idea_app/presentation/pages/dashboard_page.dart';
 import 'package:flutter_photo_idea_app/presentation/pages/search_photos_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 
